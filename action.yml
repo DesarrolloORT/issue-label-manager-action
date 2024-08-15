@@ -1,9 +1,9 @@
 name: "Issue Label Manager Action"
 description: "Will update repo's labels based on data in JSON file located at $REPO/.github/labels.json"
-author: "Benjamin Lannon <benjamin@lannonbr.com>"
+author: "DesarrolloORT"
 runs:
-  using: "node16"
-  main: "lib/index.js"
+  using: node20
+  main: dist/index.js
 branding:
   icon: "upload"
   color: "green"
@@ -11,4 +11,4 @@ inputs:
   delete:
     description: "Will not delete any existing labels and will only modify / create them"
     required: false
-    default: false
+    default: "false"
