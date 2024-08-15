@@ -1,4 +1,4 @@
-name: "Issue Label Manager Action"
+name: "Issue Label Manager (Node 20)"
 description: "Will update repo's labels based on data in JSON file located at $REPO/.github/labels.json"
 author: "DesarrolloORT"
 runs:
