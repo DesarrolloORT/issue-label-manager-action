@@ -1,19 +1,31 @@
 {
   "name": "issue-label-manager-action",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Will update repo's labels based on data in JSON file located at $REPO/.github/labels.json",
   "main": "index.js",
   "keywords": [],
-  "author": "Benjamin Lannon <benjamin@lannonbr.com>",
+  "author": "Universidad ORT Uruguay",
+  "private": true,
   "license": "MIT",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "build": "ncc build index.js -o lib -m"
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "update-tag": "git tag -fa v5 -m 'update v5 tag' && git push origin v5 --force"
   },
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.1"
+    "@actions/github": "^5.1.1",
+    "@octokit/rest": "^21.0.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.34.0"
+    "@types/node": "^22.3.0",
+    "@vercel/ncc": "^0.38.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
