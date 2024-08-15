@@ -1,3 +1,8 @@
+# 5.0.0 - August 15, 2024
+
+- breaking: Updated action to use node 20.x
+- breaking: Updated action to use typescript
+
 # 4.0.0 - November 25, 2022
 
 - breaking: Updated action to use node 16.x
