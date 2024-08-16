@@ -26,7 +26,7 @@ jobs:
     name: DefaultLabelsActions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1.0.0
+      - uses: actions/checkout@v4
       - uses: DesarrolloORT/issue-label-manager-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
