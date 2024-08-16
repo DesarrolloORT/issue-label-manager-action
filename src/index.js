@@ -91,8 +91,8 @@ function diffLabels(oldLabels, newLabels) {
         // when using `includes` with strings, the match is case-sensitive
         // so we first lowercase both strings when comparing
         if (newLabelsNames.includes(oLabel)) {
-            const oldLabel = oldLabels.filter((l) => l.name === oLabel)[0];
-            const newLabel = newLabels.filter((l) => l.name === oLabel)[0];
+            const oldLabel = oldLabels.filter((l) => l.name.toLowerCase() === oLabel.toLowerCase())[0];
+            const newLabel = newLabels.filter((l) => l.name.toLowerCase() === oLabel.toLowerCase())[0];
 
             if (
                 oldLabel.color !== newLabel.color ||
@@ -107,14 +107,14 @@ function diffLabels(oldLabels, newLabels) {
             });
         } else {
             // DELETE
-            const oldLabel = oldLabels.filter((l) => l.name === oLabel)[0];
+            const oldLabel = oldLabels.filter((l) => l.name.toLowerCase() === oLabel.toLowerCase())[0];
 
             labelModList.push({ type: "delete", label: oldLabel });
         }
     });
 
     newLabelsNames.forEach((nLabel) => {
-        const newLabel = newLabels.filter((l) => l.name === nLabel)[0];
+        const newLabel = newLabels.filter((l) => l.name.toLowerCase() === nLabel.toLowerCase())[0];
 
         // CREATE
         labelModList.push({ type: "create", label: newLabel });
