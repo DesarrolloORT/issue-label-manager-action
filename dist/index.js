@@ -9507,128 +9507,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 399:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = run;
-const fs = __importStar(__nccwpck_require__(7147));
-const path = __importStar(__nccwpck_require__(1017));
-const github = __importStar(__nccwpck_require__(5438));
-const core = __importStar(__nccwpck_require__(2186));
-const accessToken = process.env.GITHUB_TOKEN;
-const octokit = github.getOctokit(accessToken);
-async function run() {
-    const newLabelsUrl = path.join(process.env["GITHUB_WORKSPACE"], ".github", "labels.json");
-    if (!core.getBooleanInput("delete")) {
-        console.log("[Action] Will not delete any existing labels");
-    }
-    const liveLabels = await getCurrentLabels();
-    const newLabels = JSON.parse(fs.readFileSync(newLabelsUrl).toString());
-    // If the color of a label has a # sign, remove it
-    newLabels.forEach((newLabel) => {
-        if (newLabel.color.startsWith("#")) {
-            newLabel.color = newLabel.color.slice(1);
-        }
-    });
-    const labelModList = diffLabels(liveLabels, newLabels);
-    for (const mod of labelModList) {
-        if (mod.type === "create") {
-            const params = {
-                ...github.context.repo,
-                name: mod.label.name,
-                color: mod.label.color,
-                description: mod.label.description,
-            };
-            console.log(`[Action] Creating Label: ${mod.label.name}`);
-            await octokit.rest.issues.createLabel(params);
-        }
-        else if (mod.type === "update") {
-            const params = {
-                ...github.context.repo,
-                current_name: mod.label.name,
-                color: mod.label.color,
-                description: mod.label.description,
-            };
-            console.log(`[Action] Updating Label: ${mod.label.name}`);
-            await octokit.rest.issues.updateLabel(params);
-        }
-        else if (mod.type === "delete") {
-            if (core.getBooleanInput("delete")) {
-                const params = {
-                    ...github.context.repo,
-                    name: mod.label.name,
-                };
-                console.log(`[Action] Deleting Label: ${mod.label.name}`);
-                await octokit.rest.issues.deleteLabel(params);
-            }
-        }
-    }
-}
-async function getCurrentLabels() {
-    const response = await octokit.rest.issues.listLabelsForRepo({
-        ...github.context.repo,
-    });
-    return response.data;
-}
-function diffLabels(oldLabels, newLabels) {
-    const oldLabelsNames = oldLabels.map((label) => label.name.toLowerCase());
-    let newLabelsNames = newLabels.map((label) => label.name.toLowerCase());
-    const labelModList = [];
-    oldLabelsNames.forEach((oLabel) => {
-        if (newLabelsNames.includes(oLabel)) {
-            const oldLabel = oldLabels.find((l) => l.name.toLowerCase() === oLabel);
-            const newLabel = newLabels.find((l) => l.name.toLowerCase() === oLabel);
-            if (oldLabel.color !== newLabel.color ||
-                (newLabel.description !== undefined &&
-                    oldLabel.description !== newLabel.description)) {
-                // UPDATE
-                labelModList.push({ type: "update", label: newLabel });
-            }
-            newLabelsNames = newLabelsNames.filter((element) => element !== oLabel);
-        }
-        else {
-            // DELETE
-            const oldLabel = oldLabels.find((l) => l.name.toLowerCase() === oLabel);
-            labelModList.push({ type: "delete", label: oldLabel });
-        }
-    });
-    newLabelsNames.forEach((nLabel) => {
-        const newLabel = newLabels.find((l) => l.name.toLowerCase() === nLabel);
-        // CREATE
-        labelModList.push({ type: "create", label: newLabel });
-    });
-    return labelModList;
-}
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -9804,19 +9682,134 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-"use strict";
-var exports = __webpack_exports__;
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
+const github = __nccwpck_require__(5438);
+const core = __nccwpck_require__(2186);
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-/**
- * The entrypoint for the action.
- */
-const main_1 = __nccwpck_require__(399);
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-(0, main_1.run)();
+const accessToken = process.env.GITHUB_TOKEN;
+const octokit = github.getOctokit(accessToken);
 
+async function run() {
+    let newLabelsUrl = path.join(
+        process.env["GITHUB_WORKSPACE"],
+        ".github",
+        "labels.json"
+    );
+
+    if (!core.getBooleanInput("delete")) {
+        console.log("[Action] Will not delete any existing labels");
+    }
+
+    let liveLabels = await getCurrentLabels();
+    let newLabels = JSON.parse(fs.readFileSync(newLabelsUrl).toString());
+
+    // If the color of a label has a # sign, remove it
+    newLabels.forEach((newLabel) => {
+        if (newLabel.color[0] === "#") {
+            newLabel.color = newLabel.color.slice(1);
+        }
+    });
+
+    let labelModList = diffLabels(liveLabels, newLabels);
+
+    labelModList.forEach(async (mod) => {
+        if (mod.type === "create") {
+            let params = {
+                ...github.context.repo,
+                name: mod.label.name,
+                color: mod.label.color,
+                description: mod.label.description,
+            };
+            console.log(`[Action] Creating Label: ${mod.label.name}`);
+
+            await octokit.rest.issues.createLabel(params);
+        } else if (mod.type === "update") {
+            let params = {
+                ...github.context.repo,
+                current_name: mod.label.name,
+                color: mod.label.color,
+                description: mod.label.description,
+            };
+            console.log(`[Action] Updating Label: ${mod.label.name}`);
+
+            await octokit.rest.issues.updateLabel(params);
+        } else if (mod.type === "delete") {
+            if (core.getBooleanInput("delete")) {
+                let params = {
+                    ...github.context.repo,
+                    name: mod.label.name,
+                };
+                console.log(`[Action] Deleting Label: ${mod.label.name}`);
+
+                await octokit.rest.issues.deleteLabel(params);
+            }
+        }
+    });
+}
+
+async function getCurrentLabels() {
+    let response = await octokit.rest.issues.listLabelsForRepo({
+        ...github.context.repo,
+    });
+    let data = response.data;
+
+    return data;
+}
+
+function diffLabels(oldLabels, newLabels) {
+    // Return diff which includes
+    // 1) New labels to be created
+    // 2) Labels that exist but have an update
+    // 3) Labels that no longer exist and should be deleted
+
+    // each entry has two values
+    // { type: 'create' | 'update' | 'delete', label }
+
+    let oldLabelsNames = oldLabels.map((label) => label.name.toLowerCase());
+    let newLabelsNames = newLabels.map((label) => label.name.toLowerCase());
+
+    let labelModList = [];
+
+    oldLabelsNames.forEach((oLabel) => {
+        // when using `includes` with strings, the match is case-sensitive
+        // so we first lowercase both strings when comparing
+        if (newLabelsNames.includes(oLabel)) {
+            const oldLabel = oldLabels.filter((l) => l.name === oLabel)[0];
+            const newLabel = newLabels.filter((l) => l.name === oLabel)[0];
+
+            if (
+                oldLabel.color !== newLabel.color ||
+                (typeof newLabel.description !== "undefined" &&
+                    oldLabel.description !== newLabel.description)
+            ) {
+                // UPDATE
+                labelModList.push({ type: "update", label: newLabel });
+            }
+            newLabelsNames = newLabelsNames.filter((element) => {
+                return element !== oLabel;
+            });
+        } else {
+            // DELETE
+            const oldLabel = oldLabels.filter((l) => l.name === oLabel)[0];
+
+            labelModList.push({ type: "delete", label: oldLabel });
+        }
+    });
+
+    newLabelsNames.forEach((nLabel) => {
+        const newLabel = newLabels.filter((l) => l.name === nLabel)[0];
+
+        // CREATE
+        labelModList.push({ type: "create", label: newLabel });
+    });
+
+    return labelModList;
+}
+
+run();
 })();
 
 module.exports = __webpack_exports__;
