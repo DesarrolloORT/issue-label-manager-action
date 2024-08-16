@@ -9725,7 +9725,12 @@ async function run() {
             };
             console.log(`[Action] Creating Label: ${mod.label.name}`);
 
-            await octokit.rest.issues.createLabel(params);
+            try {
+                await octokit.rest.issues.createLabel(params);
+            } catch (error) {
+                console.error(`[Error] Failed to create Label: ${mod.label.name}`);
+                console.error(error);
+            }
         } else if (mod.type === "update") {
             let params = {
                 ...github.context.repo,
@@ -9735,7 +9740,12 @@ async function run() {
             };
             console.log(`[Action] Updating Label: ${mod.label.name}`);
 
-            await octokit.rest.issues.updateLabel(params);
+            try {
+                await octokit.rest.issues.updateLabel(params);
+            } catch (error) {
+                console.error(`[Error] Failed to update Label: ${mod.label.name}`);
+                console.error(error);
+            }
         } else if (mod.type === "delete") {
             if (core.getBooleanInput("delete")) {
                 let params = {
@@ -9744,7 +9754,12 @@ async function run() {
                 };
                 console.log(`[Action] Deleting Label: ${mod.label.name}`);
 
-                await octokit.rest.issues.deleteLabel(params);
+                try {
+                    await octokit.rest.issues.deleteLabel(params);
+                } catch (error) {
+                    console.error(`[Error] Failed to delete Label: ${mod.label.name}`);
+                    console.error(error);
+                }
             }
         }
     });
