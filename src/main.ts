@@ -54,13 +54,14 @@ export async function run(): Promise<void> {
         } else if (mod.type === "update") {
             const params = {
                 ...github.context.repo,
+                name: mod.label.name,
                 current_name: mod.label.name,
                 color: mod.label.color,
                 description: mod.label.description,
             };
             console.log(`[Action] Updating Label: ${mod.label.name}`);
 
-            await octokit.rest.issues.updateLabel(params as any);
+            await octokit.rest.issues.updateLabel(params);
         } else if (mod.type === "delete") {
             if (core.getBooleanInput("delete")) {
                 const params = {
